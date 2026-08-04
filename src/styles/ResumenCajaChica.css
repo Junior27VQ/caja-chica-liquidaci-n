@@ -1,0 +1,36 @@
+.resumen-caja {
+  margin: 20px 0;
+  padding: 15px;
+  background: #eef2f7;
+  border-radius: 8px;
+  box-shadow: 0px 2px 6px rgba(0,0,0,0.1);
+}
+
+.resumen-caja h3 {
+  margin-bottom: 10px;
+}
+
+.resumen-caja p {
+  margin: 5px 0;
+  font-weight: bold;
+}
+
+.resumen-caja .pendiente {
+  color: orange;
+}
+
+.resumen-caja .aprobado {
+  color: green;
+}
+
+.resumen-caja .rechazado {
+  color: red;
+}
+
+.input-fondo {
+  margin-left: 10px;
+  width: 100px;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}

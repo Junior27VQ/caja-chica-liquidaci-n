@@ -1,0 +1,51 @@
+.auditoria-container {
+  margin: 20px;
+  padding: 20px;
+  background: #fdfdfd;
+  border-radius: 8px;
+  box-shadow: 0px 2px 8px rgba(0,0,0,0.1);
+  font-family: Arial, sans-serif;
+}
+
+.auditoria-container h2 {
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.logs, .historial {
+  margin-bottom: 25px;
+}
+/* Tabla de auditoria */
+.tabla-auditoria {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch; /* Scroll suave y fluido en iOS y Android */
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+/* Estilo base de la tabla para asegurar que no se deforme */
+.custom-table {
+  width: 100%;
+  border-collapse: collapse;
+  white-space: nowrap; /* Evita que el texto se rompa de forma extraña en móvil */
+  background-color: #ffffff;
+}
+
+.custom-table th,
+.custom-table td {
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.custom-table th {
+  background-color: #004aad;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.custom-table tr:hover {
+  background-color: #f8fafc;
+}

@@ -1,0 +1,289 @@
+:root {
+  --color-primary: #004aad;   /* Azul corporativo */
+  --color-secondary: #f4f4f4; /* Gris claro */
+  --color-accent: #ff9800;    /* Naranja para botones */
+  --color-text: #333333;      /* Texto principal */
+  --font-family: 'Roboto', sans-serif;
+}
+
+/* ================= GLOBAL ================= */
+body {
+  margin: 0;
+  font-family: var(--font-family);
+  background-color: var(--color-secondary);
+  color: var(--color-text);
+}
+
+/* Botones */
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn-primary {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #003b8a;
+  transform: scale(1.05);
+}
+
+.btn-primary:active {
+  transform: scale(0.95);
+}
+
+.btn-secondary {
+  background-color: var(--color-accent);
+  color: white;
+}
+
+.btn-secondary:hover {
+  background-color: #e68900;
+  transform: scale(1.05);
+}
+
+.btn-secondary:active {
+  transform: scale(0.95);
+}
+
+/* Notificaciones */
+.notification {
+  padding: 10px 15px;
+  border-radius: 6px;
+  margin-top: 15px;
+  font-weight: bold;
+}
+
+.notification.success {
+  background-color: #4caf50;
+  color: white;
+}
+
+.notification.error {
+  background-color: #f44336;
+  color: white;
+}
+
+.notification.warning {
+  background-color: #ff9800;
+  color: white;
+}
+
+/* ================= NAVBAR ================= */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--color-primary);
+  padding: 15px 30px;
+}
+
+.navbar-links {
+  list-style: none;
+  display: flex;
+  gap: 20px;
+  color: white;
+  font-size: 1.2rem;
+  text-decoration: none;
+  font-weight: bold;
+  transition: color 0.3s ease;
+}
+
+.logo {
+  height: 40px;
+  cursor: pointer;
+}
+
+.nav-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.nav-btn:hover {
+  color: var(--color-accent);
+}
+
+/* ================= HOME ================= */
+.home-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 80vh;
+  text-align: center;
+}
+
+.home-content h1 {
+  font-size: 2rem;
+  color: var(--color-primary);
+  margin-bottom: 15px;
+}
+
+.home-content p {
+  font-size: 1rem;
+  color: var(--color-text);
+  margin-bottom: 20px;
+  max-width: 500px;
+}
+
+.home-buttons {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+}
+
+/* ================= LOGIN ================= */
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: linear-gradient(135deg, #0077cc, #00aaff);
+}
+
+.login-card {
+  background: #fff;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0px 4px 12px rgba(0,0,0,0.2);
+  width: 350px;
+  text-align: center;
+}
+
+.login-card h2 {
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.form-group {
+  margin-bottom: 15px;
+  text-align: left;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: bold;
+  color: #444;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+/* ================= DASHBOARD ================= */
+.dashboard-container {
+  padding: 20px;
+}
+
+.dashboard-container h2 {
+  color: var(--color-primary);
+  margin-bottom: 5px;
+}
+
+.dashboard-container p {
+  margin-bottom: 20px;
+  color: var(--color-text);
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  background: white;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0px 4px 12px rgba(0,0,0,0.15);
+  text-align: center;
+  transition: transform 0.2s ease;
+}
+
+.card:hover {
+  transform: scale(1.05);
+}
+
+.card-icon {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+/* Colores diferenciados */
+.card-blue { background: linear-gradient(135deg, #e3f2fd, #bbdefb); }
+.card-green { background: linear-gradient(135deg, #e8f5e9, #c8e6c9); }
+.card-orange { background: linear-gradient(135deg, #fff3e0, #ffe0b2); }
+.card-purple { background: linear-gradient(135deg, #f3e5f5, #e1bee7); }
+
+.card h3 {
+  margin-bottom: 10px;
+  color: var(--color-primary);
+}
+
+.card p {
+  font-size: 0.9rem;
+  color: var(--color-text);
+  margin-bottom: 15px;
+}
+
+.card canvas {
+  max-height: 200px;
+}
+
+/* Graficos */
+.card-graph {
+  width: 100%;
+  max-height: 120px;
+  object-fit: contain;
+  margin: 10px 0;
+}
+
+/* Modal de logout */
+.logout-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.logout-card {
+  background: #fff;
+  padding: 25px;
+  border-radius: 10px;
+  box-shadow: 0px 4px 12px rgba(0,0,0,0.2);
+  text-align: center;
+  width: 300px;
+}
+
+.logout-card h3 {
+  margin-bottom: 15px;
+  color: var(--color-primary);
+}
+
+.logout-card p {
+  margin-bottom: 20px;
+  color: var(--color-text);
+}
+
+.logout-actions {
+  display: flex;
+  justify-content: space-around;
+}
