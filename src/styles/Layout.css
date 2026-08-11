@@ -19,8 +19,15 @@ html, body, #root {
   flex-direction: column;
   flex: 1;
   min-width: 0;
-  transition: cubic-bezier(0.075, 0.82, 0.165, 1);
+  /* Margen izquierdo dinámico para que no se superponga con el sidebar fijo */
+  margin-left: 250px; 
+  transition: margin-left 0.3s ease-in-out;
   overflow-y: auto;
+}
+
+/* Si tu sidebar soporta clase collapsed, ajustamos el margen del contenido principal aquí */
+.app-sidebar.collapsed ~ .main-content-container {
+  margin-left: 70px;
 }
 
 /* Asegurar que las tarjetas y filas de Bootstrap se adapten al 100% del ancho disponible */
