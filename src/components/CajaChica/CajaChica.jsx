@@ -4,140 +4,128 @@ import ResumenCajaChica from "./ResumenCajaChica";
 import ListaGastos from "./ListaGastos";
 import HistorialFondo from "./HistorialFondo";
 import ModalGasto from "./ModalGasto";
+import "../../styles/CajaChica.css";
 
 export default function CajaChica() {
   const {
-    gastosCajaChica,
-    setGastosCajaChica,
-    fondoInicial,
-    setFondoInicial,
+    gastos,
+    fondoCajaChica,
     historialFondo,
-    setHistorialFondo,
     usuario,
-    registrarOperacion,
-    registrarModificacion,
+    crearGasto,
+    cambiarEstadoGasto,
+    exportarReporteGastos
   } = useAuth();
 
   const [showModal, setShowModal] = useState(false);
 
-  // Derivación de totales optimizada y síncrona con useMemo (Elimina useEffects redundantes)
-  const { totalPendiente, totalAprobado, totalRechazado, totalGastos, saldoDisponible } = useMemo(() => {
-    const pendientes = gastosCajaChica
-      .filter((g) => g.estado === "pendiente")
+  // 1. Filtrado de gastos robusto y flexible para el empleado
+  const gastosFiltrados = useMemo(() => {
+    if (!usuario) return [];
+    
+    // Si es Administrador, Supervisor o Contador, ven todo el historial
+    if (["Administrador", "Supervisor", "Contador"].includes(usuario.role)) {
+      return gastos || [];
+    }
+
+    // Si es Empleado, filtramos de forma flexible (por ID numérico/string o por nombre de responsable)
+    return (gastos || []).filter((g) => {
+      const coincideId = String(g.empleado_id) === String(usuario.id);
+      const coincideNombre = g.responsable && usuario.nombre && 
+        g.responsable.trim().toLowerCase() === usuario.nombre.trim().toLowerCase();
+      
+      return coincideId || coincideNombre;
+    });
+  }, [gastos, usuario]);
+
+  // 2. Definición de permisos
+  const esAdminOSupervisor = usuario?.role === "Administrador" || usuario?.role === "Supervisor";
+  const puedeRegistrar = usuario !== null && usuario?.role !== "Contador";
+
+  // 3. Totales dinámicos basados estrictamente en los gastos del empleado (o totales si es admin)
+  const { totalPendiente, totalAprobado, totalRechazado, saldoDisponible } = useMemo(() => {
+    const pendientes = gastosFiltrados
+      .filter((g) => g.estado?.toLowerCase() === "pendiente")
       .reduce((sum, g) => sum + Number(g.monto || 0), 0);
 
-    const aprobados = gastosCajaChica
-      .filter((g) => g.estado === "aprobado")
+    const aprobados = gastosFiltrados
+      .filter((g) => g.estado?.toLowerCase() === "aprobado")
       .reduce((sum, g) => sum + Number(g.monto || 0), 0);
 
-    const rechazados = gastosCajaChica
-      .filter((g) => g.estado === "rechazado")
+    const rechazados = gastosFiltrados
+      .filter((g) => g.estado?.toLowerCase() === "rechazado")
       .reduce((sum, g) => sum + Number(g.monto || 0), 0);
 
-    const fondoNum = Number(fondoInicial || 0);
+    const fondoNum = Number(fondoCajaChica || 0);
 
+    // Nota: Si es empleado, el saldo disponible puede ser el fondo general o informativo, 
+    // pero mantenemos la lógica general restando los aprobados de su vista o del total.
     return {
       totalPendiente: pendientes,
       totalAprobado: aprobados,
       totalRechazado: rechazados,
-      totalGastos: aprobados,
       saldoDisponible: fondoNum - aprobados,
     };
-  }, [gastosCajaChica, fondoInicial]);
+  }, [gastosFiltrados, fondoCajaChica]);
 
-  // Cambiar estado de gasto asegurando inmutabilidad en el contexto global
+  // 4. Funciones protegidas
   const cambiarEstado = (id, nuevoEstado) => {
-    const gastoOriginal = gastosCajaChica.find((g) => g.id === id);
-    if (!gastoOriginal) return;
-
-    const estadoAnterior = gastoOriginal.estado;
-
-    // Actualización inmutable del array de gastos
-    const gastosActualizados = gastosCajaChica.map((g) =>
-      g.id === id ? { ...g, estado: nuevoEstado } : g
-    );
-    
-    // Forzamos la actualización en el contexto global
-    setGastosCajaChica(gastosActualizados);
-
-    // Registro seguro en auditoría
-    registrarOperacion(
-      usuario?.nombre || "Sistema",
-      `Cambio de estado de gasto`,
-      `Gasto #${id} (${gastoOriginal.concepto}) → ${nuevoEstado}`
-    );
-    
-    registrarModificacion(
-      usuario?.nombre || "Sistema",
-      "estado gasto",
-      estadoAnterior,
-      nuevoEstado
-    );
+    if (esAdminOSupervisor) {
+      cambiarEstadoGasto(id, nuevoEstado);
+    }
   };
 
-  // Agregar nuevo gasto de forma inmutable
   const agregarGasto = (nuevo) => {
-    const nuevoConId = { 
-      ...nuevo, 
-      id: Date.now(), 
-      estado: "pendiente",
-      monto: Number(nuevo.monto) 
-    };
-    
-    setGastosCajaChica([...gastosCajaChica, nuevoConId]);
-
-    registrarOperacion(
-      usuario?.nombre || "Sistema",
-      "Registro de gasto",
-      `Nuevo gasto: ${nuevo.concepto}, $${nuevo.monto}`
-    );
+    if (puedeRegistrar) {
+      crearGasto(nuevo.concepto, nuevo.monto, nuevo.descripcion || "");
+    }
   };
-
-  const puedeRegistrar =
-    usuario?.role === "Administrador" || usuario?.role === "Supervisor";
 
   return (
-    <div className="card caja-chica">
-      <h2>Gastos de Caja Chica</h2>
+    <div className="caja-chica-wrapper">
+      <div className="card caja-chica shadow-sm border-0 bg-white p-4">
+        <div className="d-flex justify-content-between align-items-center mb-4">
+          <h2>Gestión de Caja Chica</h2>
+          {puedeRegistrar && (
+            <button
+              className="btn btn-primary"
+              onClick={() => setShowModal(true)}
+            >
+              <i className="fas fa-plus-circle me-2"></i> Registrar nuevo gasto
+            </button>
+          )}
+        </div>
 
-      {puedeRegistrar && (
-        <button
-          className="btn btn-primary"
-          onClick={() => setShowModal(true)}
-        >
-          Registrar nuevo gasto
-        </button>
-      )}
-
-      <ResumenCajaChica
-        fondoInicial={fondoInicial}
-        setFondoInicial={setFondoInicial}
-        totalPendiente={totalPendiente}
-        totalAprobado={totalAprobado}
-        totalRechazado={totalRechazado}
-        totalGastos={totalGastos}
-        saldoDisponible={saldoDisponible}
-        usuario={usuario}
-        historialFondo={historialFondo}
-        setHistorialFondo={setHistorialFondo}
-      />
-
-      <ListaGastos
-        gastos={gastosCajaChica}
-        cambiarEstado={cambiarEstado}
-        usuario={usuario}
-      />
-
-      <HistorialFondo historial={historialFondo} />
-
-      {showModal && (
-        <ModalGasto
-          onClose={() => setShowModal(false)}
-          onSave={agregarGasto}
-          usuario={usuario}
-          gastos={gastosCajaChica}
+        {/* Resumen Financiero adaptado al rol del usuario */}
+        <ResumenCajaChica
+          fondoInicial={fondoCajaChica}
+          totalPendiente={totalPendiente}
+          totalAprobado={totalAprobado}
+          totalRechazado={totalRechazado}
+          saldoDisponible={saldoDisponible}
         />
-      )}
+
+        {/* Tabla que listará únicamente los gastos que le corresponden al empleado */}
+        <ListaGastos
+          gastos={gastosFiltrados}
+          cambiarEstado={esAdminOSupervisor ? cambiarEstado : null}
+          usuario={usuario}
+          saldoDisponible={saldoDisponible}
+          exportarReporteGastos={exportarReporteGastos}
+        />
+
+        {/* Historial de fondo general (opcionalmente visible o exclusivo para control) */}
+        <HistorialFondo historial={historialFondo} />
+
+        {showModal && (
+          <ModalGasto
+            onClose={() => setShowModal(false)}
+            onSave={agregarGasto}
+            usuario={usuario}
+            gastos={gastos}
+          />
+        )}
+      </div>
     </div>
   );
 }

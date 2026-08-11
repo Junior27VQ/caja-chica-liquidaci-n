@@ -1,0 +1,188 @@
+/* src/styles/Login.css */
+
+/* Contenedor principal que centra la tarjeta en la pantalla con un fondo sutil */
+.login-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f4f6f9 0%, #d9e2ec 100%);
+  padding: 1.5rem;
+}
+
+/* Tarjeta principal de inicio de sesión */
+.login-card {
+  background: #ffffff;
+  padding: 2.5rem;
+  border-radius: 1rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  max-width: 440px;
+  transition: transform 0.3s ease;
+}
+
+/* Cabecera del formulario */
+.login-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.login-header h2 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #343a40;
+  margin-bottom: 0.5rem;
+}
+
+.login-header p {
+  font-size: 0.9rem;
+  color: #6c757d;
+  margin: 0;
+}
+
+/* Grupos de formularios */
+.form-group {
+  margin-bottom: 1.25rem;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 0.5rem;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: 0.95rem;
+  border: 1px solid #ced4da;
+  border-radius: 0.5rem;
+  background-color: #f8f9fa;
+  transition: all 0.2s ease-in-out;
+  box-sizing: border-box;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #007bff;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+}
+
+/* Notificación de Error */
+.notification.error {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 0.75rem;
+  font-size: 0.85rem;
+  border-radius: 0.5rem;
+  border: 1px solid #f5c6cb;
+  margin-bottom: 1.25rem;
+  text-align: center;
+}
+
+/* Botón principal de envío */
+.btn-primary {
+  display: block;
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #ffffff;
+  background-color: #007bff;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #0056b3;
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.btn-primary:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Enlace para volver al inicio */
+.login-footer {
+  text-align: center;
+  margin-top: 1.5rem;
+}
+
+.back-home-link {
+  font-size: 0.85rem;
+  color: #6c757d;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.back-home-link:hover {
+  color: #007bff;
+  text-decoration: underline;
+}
+
+/* Caja de accesos rápidos de prueba (Mock Helper) */
+.mock-helper-box {
+  margin-top: 1.5rem !important;
+  font-size: 0.85rem;
+  background: #f1f3f5 !important;
+  padding: 12px !important;
+  border-radius: 8px !important;
+  border: 1px dashed #ced4da;
+}
+
+.mock-helper-box p {
+  margin: 0 0 8px 0 !important;
+  font-weight: 600 !important;
+  color: #495057 !important;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.mock-helper-box > div {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.mock-helper-box button {
+  font-size: 0.75rem !important;
+  padding: 5px 10px !important;
+  cursor: pointer;
+  background: #ffffff !important;
+  border: 1px solid #ced4da !important;
+  border-radius: 4px !important;
+  color: #343a40;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.mock-helper-box button:hover {
+  background: #007bff !important;
+  color: #ffffff !important;
+  border-color: #007bff !important;
+}
+
+/* Ajustes Responsivos para pantallas pequeñas (Móviles) */
+@media (max-width: 480px) {
+  .login-container {
+    padding: 1rem;
+    background: #ffffff; /* Fondo sólido en móvil para mayor limpieza visual */
+  }
+
+  .login-card {
+    padding: 1.5rem;
+    box-shadow: none;
+    border: none;
+  }
+}

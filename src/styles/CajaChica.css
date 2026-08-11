@@ -1,0 +1,98 @@
+/* src/styles/CajaChica.css */
+
+.caja-chica-wrapper {
+  background-color: #f4f6f9;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+}
+
+.caja-chica {
+  background: #ffffff;
+  border-radius: 0.5rem;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  border: none;
+  padding: 1.5rem;
+}
+
+.caja-chica h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #343a40;
+  margin-bottom: 0;
+}
+
+/* Botón de acción principal con estilo AdminLTE 4 */
+.caja-chica .btn-primary {
+  background-color: #007bff;
+  border-color: #007bff;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  transition: all 0.2s ease-in-out;
+}
+
+.caja-chica .btn-primary:hover {
+  background-color: #0056b3;
+  border-color: #004085;
+  box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2);
+}
+
+/* Tarjetas internas de resumen y secciones financieras */
+.caja-chica .card-stats {
+  border: none;
+  border-radius: 0.5rem;
+  box-shadow: 0 0.25rem 0.5rem rgba(0,0,0,0.05);
+  transition: transform 0.2s ease;
+}
+
+.caja-chica .card-stats:hover {
+  transform: translateY(-2px);
+}
+
+/* Tablas y listados de gastos estilizados */
+.caja-chica .table {
+  margin-bottom: 0;
+  color: #212529;
+  vertical-align: middle;
+}
+
+.caja-chica .table th {
+  background-color: #343a40;
+  color: #ffffff;
+  font-weight: 600;
+  border-top: none;
+  padding: 0.75rem;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.caja-chica .table td {
+  padding: 0.875rem 0.75rem;
+  font-size: 0.925rem;
+  border-bottom: 1px solid #e9ecef;
+}
+
+/* Badges de estado financieros modernos */
+.badge-estado {
+  padding: 0.35em 0.65em;
+  font-size: 0.75em;
+  font-weight: 700;
+  border-radius: 10rem;
+  text-transform: uppercase;
+}
+
+.badge-pendiente {
+  background-color: #ffc107;
+  color: #212529;
+}
+
+.badge-aprobado {
+  background-color: #28a745;
+  color: #ffffff;
+}
+
+.badge-rechazado {
+  background-color: #dc3545;
+  color: #ffffff;
+}

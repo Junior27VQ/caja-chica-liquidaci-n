@@ -1,157 +1,249 @@
-import React, { useState, useEffect } from "react";
+// src/components/Liquidacion.jsx
+import React, { useState, useMemo } from "react";
 import { useAuth } from "../context/GlobalContext";
 import "../styles/Liquidacion.css";
 
 export default function Liquidacion() {
   const {
     empleados,
-    fondoInicial,
-    gastosCajaChica,
+    usuarios,               // <-- Importante: Traemos usuarios para cruzar los nombres
+    fondoCajaChica,
+    gastos,
     usuario,
-    registrarOperacion,
-    registrarModificacion,
+    calcularLiquidacionEmpleado,
+    registrarAuditoria,
+    exportarReporteGastos,
+    agregarNotificacion     // Si lo tienes integrado, sino usamos solo alert
   } = useAuth();
 
   // Estados para formulario
   const [empleadoId, setEmpleadoId] = useState("");
   const [horasExtras, setHorasExtras] = useState("");
-  const [descuentos, setDescuentos] = useState("");
-
-  // Estados para cálculos
-  const [gastosAprobados, setGastosAprobados] = useState(0);
-  const [resultadoCajaChica, setResultadoCajaChica] = useState(null);
+  const [descuentosExtra, setDescuentosExtra] = useState("");
   const [resultadoEmpleado, setResultadoEmpleado] = useState(null);
 
-  // Calcular gastos aprobados y saldo de caja chica
-  useEffect(() => {
-    const aprobados = gastosCajaChica
-      .filter((g) => g.estado === "aprobado")
-      .reduce((sum, g) => sum + Number(g.monto), 0);
+  // Cálculo síncrono de gastos aprobados y saldo
+  const { gastosAprobados, saldoDisponible } = useMemo(() => {
+    const aprobados = (gastos || [])
+      .filter((g) => (g.estado || "").toLowerCase() === "aprobado")
+      .reduce((sum, g) => sum + Number(g.monto || 0), 0);
 
-    setGastosAprobados(aprobados);
-    setResultadoCajaChica(fondoInicial - aprobados);
-  }, [gastosCajaChica, fondoInicial]);
+    const fondoNum = Number(fondoCajaChica || 0);
 
-  // Calcular liquidación de empleado
-  const calcularLiquidacionEmpleado = () => {
+    return {
+      gastosAprobados: aprobados,
+      saldoDisponible: fondoNum - aprobados,
+    };
+  }, [gastos, fondoCajaChica]);
+
+  // Función para obtener el nombre del empleado
+  const obtenerNombreEmpleado = (empleado) => {
+  if (!usuarios) return `Empleado #${empleado.id}`;
+  // Buscamos el usuario cuyo ID coincida con empleado.usuario_id
+  const userVinculado = usuarios.find(u => u.id === empleado.usuario_id);
+  return userVinculado ? userVinculado.nombre : `Empleado #${empleado.id}`;
+};
+
+  const handleCalcularLiquidacion = () => {
     if (!empleadoId) {
       alert("Seleccione un empleado");
       return;
     }
-    if (isNaN(horasExtras) || isNaN(descuentos)) {
-      alert("Horas extras y descuentos deben ser números");
+    if (isNaN(horasExtras) || isNaN(descuentosExtra)) {
+      alert("Horas extras y descuentos deben ser números válidos");
       return;
     }
 
-    const empleado = empleados.find((e) => e.id === Number(empleadoId));
-    if (!empleado) {
-      alert("Empleado no encontrado");
+    const resultado = calcularLiquidacionEmpleado(
+      Number(empleadoId),
+      Number(horasExtras || 0),
+      Number(descuentosExtra || 0)
+    );
+
+    if (!resultado) {
+      alert("No se pudo calcular la liquidación.");
       return;
     }
 
-    const pagoHorasExtras = Number(horasExtras) * 5; // Simulación: $5 por hora extra
-    const total = empleado.sueldo + pagoHorasExtras - Number(descuentos);
-
-    const resultado = {
-      empleado: empleado.nombre,
-      sueldoBase: empleado.sueldo,
-      horasExtras,
-      descuentos,
-      total,
-    };
+    // Le inyectamos el nombre real obtenido al resultado para mostrarlo en el recibo
+    const empleadoBase = empleados.find(e => e.id === Number(empleadoId));
+    resultado.nombreReal = obtenerNombreEmpleado(empleadoBase);
 
     setResultadoEmpleado(resultado);
 
-    // Registrar en auditoría
-    registrarOperacion(
-      usuario?.nombre || "Sistema",
-      "Cálculo de liquidación",
-      `Empleado: ${empleado.nombre}, Total: $${total}`
-    );
-    registrarModificacion(
-      usuario?.nombre || "Sistema",
-      "Liquidación",
-      "sin cálculo previo",
-      `Sueldo: ${empleado.sueldo}, Extras: ${horasExtras}, Descuentos: ${descuentos}, Total: ${total}`
-    );
+    if (registrarAuditoria) {
+      registrarAuditoria(
+        "CALCULO_LIQUIDACION",
+        `El usuario ${usuario?.nombre} calculó la liquidación para ${resultado.nombreReal}.`
+      );
+    }
   };
 
-  // Restricciones por rol
-  const puedeCalcular =
-    usuario?.role === "Administrador" || usuario?.role === "Supervisor";
-  const puedeVer =
-    usuario?.role === "Administrador" ||
-    usuario?.role === "Supervisor" ||
-    usuario?.role === "Empleado";
+  const handleExportarLiquidacion = () => {
+    const fechaActual = new Date().toISOString().replace("T", " ").substring(0, 19);
+    
+    // Alerta solicitada
+    alert(`📥 ¡Liquidación exportada con éxito!\n\n📅 Fecha: ${fechaActual}\n👤 Generado por: ${usuario?.nombre} (${usuario?.role})\n📄 Empleado Liquidado: ${resultadoEmpleado.nombreReal}\n💰 Total a Pagar: $${Number(resultadoEmpleado.totalPagar).toFixed(2)}\n\nSe ha notificado al sistema.`);
+    
+    // Si tienes el sistema de notificaciones del paso anterior, lo disparamos:
+    if (agregarNotificacion) {
+      agregarNotificacion(
+        "Liquidación Exportada",
+        `${usuario?.nombre} exportó la liquidación de ${resultadoEmpleado.nombreReal} por $${Number(resultadoEmpleado.totalPagar).toFixed(2)}`,
+        "liquidacion"
+      );
+    }
+  };
+
+  const puedeCalcular = usuario?.role === "Administrador" || usuario?.role === "Supervisor" || usuario?.role === "Contador";
+  const puedeVer = puedeCalcular || usuario?.role === "Empleado";
 
   return (
-    <div className="liquidacion-container">
-      <h2>Liquidación</h2>
+    <div className="fin-container p-4">
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <h2 className="fin-main-title m-0">Módulo de Liquidación y Cierres</h2>
+      </div>
 
       {/* Resumen de Caja Chica */}
       {puedeVer && (
-        <div className="resumen-caja">
-          <h3>Resumen de Caja Chica</h3>
-          <p><strong>Fondo inicial:</strong> ${fondoInicial}</p>
-          <p><strong>Gastos aprobados:</strong> ${gastosAprobados}</p>
-          <p><strong>Saldo disponible:</strong> ${resultadoCajaChica}</p>
+        <div className="fin-card mb-4">
+          <h3 className="fin-card-title">Resumen Financiero (Caja Chica)</h3>
+          <div className="row g-3">
+            <div className="col-md-4">
+              <div className="fin-stat-box box-primary">
+                <span className="fin-stat-label">Fondo Inicial Asignado</span>
+                <strong className="fin-stat-value">${Number(fondoCajaChica || 0).toFixed(2)}</strong>
+              </div>
+            </div>
+            <div className="col-md-4">
+              <div className="fin-stat-box box-info">
+                <span className="fin-stat-label">Total Gastos Aprobados</span>
+                <strong className="fin-stat-value">${Number(gastosAprobados).toFixed(2)}</strong>
+              </div>
+            </div>
+            <div className="col-md-4">
+              <div className="fin-stat-box box-success">
+                <span className="fin-stat-label">Saldo Neto Disponible</span>
+                <strong className="fin-stat-value">${Number(saldoDisponible).toFixed(2)}</strong>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
       {/* Formulario de Liquidación de Empleado */}
       {puedeCalcular && (
-        <div className="form-liquidacion">
-          <h3>Liquidación de Empleado</h3>
+        <div className="fin-card mb-4">
+          <h3 className="fin-card-title">Generar Planilla de Liquidación</h3>
+          
+          <div className="fin-form-group mb-3">
+            <label className="fin-label">Seleccionar Colaborador:</label>
+            <select
+              className="fin-input form-select"
+              value={empleadoId}
+              onChange={(e) => setEmpleadoId(e.target.value)}
+            >
+              <option value="">-- Seleccione un empleado del sistema --</option>
+              {empleados && empleados.map((e) => (
+                <option key={e.id} value={e.id}>
+                  {obtenerNombreEmpleado(e)} 
+                </option>
+              ))}
+            </select>
+          </div>
 
-          <select
-            className="textbox"
-            value={empleadoId}
-            onChange={(e) => setEmpleadoId(e.target.value)}
-          >
-            <option value="">Seleccione empleado</option>
-            {empleados.map((e) => (
-              <option key={e.id} value={e.id}>{e.nombre}</option>
-            ))}
-          </select>
+          <div className="row">
+            <div className="col-md-6 mb-3">
+              <label className="fin-label">Horas Extras Reportadas:</label>
+              <input
+                type="number"
+                step="1"
+                className="fin-input form-control"
+                placeholder="Ej. 10"
+                value={horasExtras}
+                onChange={(e) => setHorasExtras(e.target.value)}
+              />
+            </div>
+            <div className="col-md-6 mb-3">
+              <label className="fin-label">Deducciones Adicionales (USD):</label>
+              <input
+                type="number"
+                step="0.01"
+                className="fin-input form-control"
+                placeholder="0.00"
+                value={descuentosExtra}
+                onChange={(e) => setDescuentosExtra(e.target.value)}
+              />
+            </div>
+          </div>
 
-          <input
-            type="number"
-            className="textbox"
-            placeholder="Horas extras"
-            value={horasExtras}
-            onChange={(e) => setHorasExtras(e.target.value)}
-          />
-
-          <input
-            type="number"
-            className="textbox"
-            placeholder="Descuentos"
-            value={descuentos}
-            onChange={(e) => setDescuentos(e.target.value)}
-          />
-
-          <button className="btn btn-primary" onClick={calcularLiquidacionEmpleado}>
-            Calcular Liquidación
+          <button className="fin-btn-primary mt-2" onClick={handleCalcularLiquidacion}>
+            <i className="fas fa-file-invoice-dollar me-2"></i> Procesar Liquidación
           </button>
         </div>
       )}
 
-      {/* Resultado de Liquidación */}
+      {/* Comprobante Estilo Factura/Recibo */}
       {resultadoEmpleado && puedeVer && (
-        <div className="card comprobante">
-          <h3>Comprobante de Liquidación</h3>
-          <p><strong>Empleado:</strong> {resultadoEmpleado.empleado}</p>
-          <p><strong>Sueldo Base:</strong> ${resultadoEmpleado.sueldoBase}</p>
-          <p><strong>Horas Extras:</strong> {resultadoEmpleado.horasExtras} (x $5)</p>
-          <p><strong>Descuentos:</strong> ${resultadoEmpleado.descuentos}</p>
-          <hr />
-          <p><strong>Total a Pagar:</strong> ${resultadoEmpleado.total}</p>
+        <div className="fin-receipt-card">
+          <div className="fin-receipt-header">
+            <div className="fin-receipt-brand">
+              <i className="fas fa-check-circle me-2"></i> Liquidación Aprobada
+            </div>
+            <button className="fin-btn-export" onClick={handleExportarLiquidacion}>
+              <i className="fas fa-print me-2"></i> Exportar Documento
+            </button>
+          </div>
+          
+          <div className="fin-receipt-body">
+            <div className="row">
+              <div className="col-sm-6 mb-3">
+                <span className="fin-receipt-label">Colaborador</span>
+                <div className="fin-receipt-data text-uppercase">{resultadoEmpleado.nombreReal}</div>
+              </div>
+              <div className="col-sm-6 mb-3">
+                <span className="fin-receipt-label">Fecha de Emisión</span>
+                <div className="fin-receipt-data">{new Date().toLocaleDateString()}</div>
+              </div>
+            </div>
+
+            <div className="fin-receipt-table-wrapper mt-3">
+              <table className="table fin-receipt-table">
+                <tbody>
+                  <tr>
+                    <td>Sueldo Base Contractual</td>
+                    <td className="text-end fw-bold">${Number(resultadoEmpleado.sueldoBase || 0).toFixed(2)}</td>
+                  </tr>
+                  <tr>
+                    <td>Remuneración por Horas Extras ({resultadoEmpleado.horasExtras} hrs)</td>
+                    <td className="text-end text-success">+ ${Number(resultadoEmpleado.montoHorasExtras || 0).toFixed(2)}</td>
+                  </tr>
+                  <tr>
+                    <td>Reembolso de Gastos (Caja Chica)</td>
+                    <td className="text-end text-success">+ ${Number(resultadoEmpleado.gastosReembolsables || 0).toFixed(2)}</td>
+                  </tr>
+                  <tr>
+                    <td>Deducciones y Aportes (Ley + Extras)</td>
+                    <td className="text-end text-danger">- ${Number(resultadoEmpleado.descuentos || 0).toFixed(2)}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div className="fin-receipt-footer">
+            <span>Neto a Pagar</span>
+            <span className="fin-receipt-total">${Number(resultadoEmpleado.totalPagar || 0).toFixed(2)}</span>
+          </div>
         </div>
       )}
 
-      {/* Restricción para empleados */}
+      {/* Mensaje para empleados */}
       {usuario?.role === "Empleado" && !resultadoEmpleado && (
-        <p>Solo puede consultar su propia liquidación.</p>
+        <div className="alert alert-secondary mt-3 shadow-sm border-0">
+          <i className="fas fa-info-circle me-2 text-primary"></i> 
+          Módulo de visualización activa. Seleccione generar liquidación o comuníquese con RRHH para emitir su recibo.
+        </div>
       )}
     </div>
   );

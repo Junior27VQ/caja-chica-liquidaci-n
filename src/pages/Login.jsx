@@ -1,11 +1,12 @@
+// src/pages/Login.jsx
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/GlobalContext";
-import { usuarios } from "../data/mockData";
+import '../styles/Login.css';
 
 export default function Login() {
   const navigate = useNavigate();
-  const { setUsuario } = useAuth();
+  const { login, usuarios } = useAuth(); // Consumimos login y usuarios del context-backend
 
   const [formData, setFormData] = useState({ nombre: "", password: "" });
   const [error, setError] = useState("");
@@ -22,24 +23,21 @@ export default function Login() {
 
     // Simulamos un breve retraso para dar sensación de procesamiento real
     setTimeout(() => {
-      const user = usuarios.find(
-        (u) => u.nombre.trim().toLowerCase() === formData.nombre.trim().toLowerCase() && 
-               u.password === formData.password
-      );
+      // Usamos la función de negocio centralizada en el Context
+      const resultado = login(formData.nombre, formData.password);
 
-      if (user) {
-        setUsuario(user);
+      if (resultado.success) {
         navigate("/dashboard");
       } else {
-        setError("Usuario o contraseña incorrectos. Por favor, verifique sus datos.");
+        setError(resultado.message || "Usuario o contraseña incorrectos.");
         setCargando(false);
       }
     }, 400);
   };
 
-  // Función auxiliar opcional para autocompletar en desarrollo (Testing UX)
+  // Función auxiliar para autocompletar en desarrollo (Testing UX)
   const seleccionarUsuarioPrueba = (userMock) => {
-    setFormData({ nombre: userMock.nombre, password: userMock.password });
+    setFormData({ nombre: userMock.usuario || userMock.nombre, password: userMock.password });
     setError("");
   };
 
@@ -59,7 +57,7 @@ export default function Login() {
               id="nombre"
               type="text"
               name="nombre"
-              placeholder="Ej. Admin, Juan..."
+              placeholder="Ej. admin, jperez..."
               value={formData.nombre}
               onChange={handleChange}
               required
@@ -104,7 +102,7 @@ export default function Login() {
         <div className="mock-helper-box" style={{ marginTop: "20px", fontSize: "0.85rem", background: "#f8f9fa", padding: "10px", borderRadius: "6px" }}>
           <p style={{ margin: "0 0 6px 0", fontWeight: "bold", color: "#555" }}>Accesos rápidos de prueba:</p>
           <div style={{ display: "flex", gap: "5px", flexWrap: "wrap" }}>
-            {usuarios.map((u, idx) => (
+            {usuarios && usuarios.map((u, idx) => (
               <button
                 key={idx}
                 type="button"

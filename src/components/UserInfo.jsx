@@ -1,21 +1,18 @@
+// src/components/UserInfo.jsx
 import React from "react";
 import { useAuth } from "../context/GlobalContext";
 import "../styles/UserInfo.css";
-import { perfilUsuario } from "../data/mockData";
 
 export default function UserInfo() {
   const { usuario } = useAuth();
 
-  // Buscar el perfil que coincida con el usuario logueado
-  const perfil = perfilUsuario.find((p) => p.nombre === usuario?.nombre);
-
-  if (!perfil) {
+  if (!usuario) {
     return (
       <div className="user-profile-card">
         <div className="user-card-header">
           <h3>Información del Usuario</h3>
         </div>
-        <p className="user-empty-text">No hay información disponible para este usuario.</p>
+        <p className="user-empty-text">No hay información disponible. Inicie sesión.</p>
       </div>
     );
   }
@@ -30,13 +27,13 @@ export default function UserInfo() {
     return nombre.substring(0, 2).toUpperCase();
   };
 
-  // Campos detallados estructurados
+  // Campos detallados estructurados directamente del usuario logueado
   const camposDetalle = [
-    { label: "Departamento", value: perfil.departamento, icono: "🏢" },
-    { label: "Correo electrónico", value: perfil.correo, icono: "✉️" },
-    { label: "Teléfono", value: perfil.telefono, icono: "📞" },
-    { label: "Fecha de ingreso", value: perfil.fechaIngreso, icono: "📅" },
-    { label: "Último acceso", value: perfil.ultimoAcceso, icono: "🕒" },
+    { label: "Departamento", value: usuario.departamento, icono: "🏢" },
+    { label: "Correo electrónico", value: usuario.correo, icono: "✉️" },
+    { label: "Teléfono", value: usuario.telefono, icono: "📞" },
+    { label: "Fecha de ingreso", value: usuario.fechaIngreso, icono: "📅" },
+    { label: "Último acceso", value: usuario.ultimoAcceso, icono: "🕒" },
   ];
 
   return (
@@ -44,16 +41,16 @@ export default function UserInfo() {
       {/* Cabecera del Perfil con Avatar y Rol */}
       <div className="user-profile-header">
         <div className="user-avatar">
-          {perfil.avatar ? (
-            <img src={perfil.avatar} alt={perfil.nombre} />
+          {usuario.avatar ? (
+            <img src={usuario.avatar} alt={usuario.nombre} />
           ) : (
-            <span>{obtenerIniciales(perfil.nombre)}</span>
+            <span>{obtenerIniciales(usuario.nombre)}</span>
           )}
         </div>
         <div className="user-main-info">
-          <h3>{perfil.nombre}</h3>
-          <span className={`user-role-badge role-${perfil.role?.toLowerCase()}`}>
-            {perfil.role || usuario?.role}
+          <h3>{usuario.nombre}</h3>
+          <span className={`user-role-badge role-${usuario.role?.toLowerCase()}`}>
+            {usuario.role}
           </span>
         </div>
       </div>
