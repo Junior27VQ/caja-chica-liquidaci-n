@@ -59,6 +59,7 @@
 /* Notificaciones Dropdown */
 .notification-dropdown-wrapper {
   position: relative;
+  z-index: 2005; /* Asegura contexto de apilamiento superior */
 }
 
 .btn-notification-icon {
@@ -95,15 +96,15 @@
 
 .notification-menu {
   position: absolute;
-  right: 0;
-  top: 50px;
-  width: 320px;
-  background: white;
-  border-radius: 0.5rem;
-  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  left: 0;
+  top: calc(100% + 10px); 
+  min-width: 300px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
   border: 1px solid rgba(0, 0, 0, 0.1);
   overflow: hidden;
-  z-index: 1060 !important;
+  z-index: 2010 !important; 
 }
 
 .notification-header {
@@ -296,7 +297,7 @@
 /* Responsive para pantallas pequeñas */
 @media (max-width: 768px) {
   .user-meta {
-    display: none; /* Oculta el texto del nombre en móviles para ahorrar espacio, dejando solo el avatar */
+    display: none;
   }
   .app-navbar {
     padding: 0 0.75rem;
